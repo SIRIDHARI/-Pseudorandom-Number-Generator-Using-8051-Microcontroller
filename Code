@@ -1,0 +1,71 @@
+Code : 
+
+#include<reg51.h> 
+#define lcd P0 
+sbit rs=P2^0; 
+sbit e=P2^1; 
+sbit sw=P3^0; 
+sbit rst=P3^1; 
+unsigned int i=0; 
+void delay (int); 
+void display (unsigned char); 
+void cmd (unsigned char); 
+void string (char *); 
+void init (void); 
+void int_lcd(unsigned int); 
+void delay (int d){ 
+ unsigned char i=0; 
+ for(;d>0;d--){ 
+  for(i=250;i>0;i--); 
+  for(i=248;i>0;i--);}} 
+void cmd (unsigned char c){ 
+ lcd=c; 
+ rs=0; 
+ e=1; 
+ delay(5); 
+ e=0;} 
+void display (unsigned char c){ 
+ lcd=c; 
+ rs=1; 
+ e=1; 
+ delay(5); 
+ e=0;} 
+void string (char *p){ 
+while(*p){display(*p++);}} 
+void init (void){ 
+cmd(0x38); 
+cmd(0x0c); 
+cmd(0x01); 
+cmd(0x80);} 
+void int_lcd(unsigned int n){ 
+char a[4]={0},i=0; 
+   if(n==0){ 
+display('0'); return;} 
+ else{ 
+       while(n>0){ 
+ a[i++]=(n%10)+48; 
+ n/=10;} 
+ for(--i;i>=0;i--) 
+ {display(a[i]);}}} 
+    void main(){ 
+ sw=1; 
+ rst=1; 
+ init(); 
+ cmd(0x80); 
+ string(" Random Number  "); 
+ cmd(0xc0); 
+ string("   Generator    "); 
+ delay(2000); 
+ cmd(0x01); 
+ while(1) 
+ {cmd(0x80); 
+ string("Press the button"); 
+ while(sw!=0) 
+ {i=++i; 
+ if(i==100) 
+ i=0;}  
+        cmd(0x80); 
+ string("RAND NUM:      "); 
+ cmd(0x8a); 
+ int_lcd(i); 
+ while(rst!=0);}}
